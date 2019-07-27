@@ -1,0 +1,63 @@
+#!/usr/bin/python3
+"""
+Python Practical Template
+Keegan Crankshaw
+Readjust this Docstring as follows:
+Names: Johanne Jansen van Vuuren    
+Student Number: JNSJOH021
+Prac: 1
+Date: 22/07/2019
+"""
+
+# import Relevant Librares
+import RPi.GPIO as GPIO
+import time
+#GPIO.setwarnings(False)
+#variables
+LED = 7
+switch = 33
+
+#setup pins
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(LED, GPIO.OUT) #GPIO4, LED
+#GPIO.setup(29, GPIO.OUT) #GPIO5, LED
+#GPIO.setup(31, GPIO.OUT) #GPIO6, LED
+GPIO.setup(switch, GPIO.IN, pull_up_down=GPIO.PUD_UP) #GPIO13, switch up
+#GPIO.setup(35, GPIO.IN, pull_up_down=GPIO.GPIO.UP) #GPIO19, switch down
+
+#set default values for LEDs
+#output_list = (7, 29, 31)
+GPIO.output(LED, GPIO.HIGH) #all LEDs on initially
+Led_status = 1
+
+#callback function
+def my_callback(switch):
+    global Led_status
+    Led_status = not Led_status
+    GPIO.output(LED, Led_status)
+    if Led_status==1:
+        print("led off")
+    else:
+        print("led on")
+
+# Logic that you write
+def main():
+    GPIO.add_event_detect(switch, GPIO.FALLING, callback=my_callback, bouncetime=200)
+    while True:
+        time.sleep(1)
+
+
+# Only run the functions if 
+if __name__ == "__main__":
+    # Make sure the GPIO is stopped correctly
+    try:
+        while True:
+            main()
+    except KeyboardInterrupt:
+        print("Exiting gracefully")
+        # Turn off your GPIOs here
+        GPIO.cleanup()
+    except Exception as e:
+        GPIO.cleanup()
+        print("Some other error occurred")
+        print(e.message)
