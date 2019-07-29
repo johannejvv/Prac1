@@ -12,37 +12,90 @@ Date: 22/07/2019
 # import Relevant Librares
 import RPi.GPIO as GPIO
 import time
-#GPIO.setwarnings(False)
+import itertools
+
+GPIO.setwarnings(False)
 #variables
-LED = 7
-switch = 33
+LED_001 = 7
+LED_010 = 29
+LED_100 = 31
+switch_up = 33
+switch_down = 35
 
 #setup pins
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(LED, GPIO.OUT) #GPIO4, LED
-#GPIO.setup(29, GPIO.OUT) #GPIO5, LED
-#GPIO.setup(31, GPIO.OUT) #GPIO6, LED
-GPIO.setup(switch, GPIO.IN, pull_up_down=GPIO.PUD_UP) #GPIO13, switch up
-#GPIO.setup(35, GPIO.IN, pull_up_down=GPIO.GPIO.UP) #GPIO19, switch down
+GPIO.setup(LED_001, GPIO.OUT) #GPIO4, LED
+GPIO.setup(LED_010, GPIO.OUT) #GPIO5, LED
+GPIO.setup(LED_100, GPIO.OUT) #GPIO6, LED
+GPIO.setup(switch_up, GPIO.IN, pull_up_down=GPIO.PUD_UP) #GPIO13, switch up
+GPIO.setup(switch_down, GPIO.IN, pull_up_down=GPIO.PUD_UP) #GPIO19, switch down
 
 #set default values for LEDs
-#output_list = (7, 29, 31)
-GPIO.output(LED, GPIO.HIGH) #all LEDs on initially
-Led_status = 1
+output_list = (LED_001, LED_010, LED_100)
+GPIO.output(output_list, GPIO.HIGH) #all LEDs on initially
+
+#Led_status = 1
+counter = 0
+output = list(itertools.product(range(2), repeat=3))
 
 #callback function
-def my_callback(switch):
-    global Led_status
-    Led_status = not Led_status
-    GPIO.output(LED, Led_status)
-    if Led_status==1:
-        print("led off")
-    else:
-        print("led on")
+def my_callback(switch_up):
+    global counter
+    
+    
+    if (counter !=7):
+        counter +=1
+        print("Counter =", counter)
+        for i in range(len(output)):
+            if (i == counter):
+                GPIO.output(output_list, output[7-i])
+        time.sleep(0.1)
+    
+
+    elif (counter == 7):
+        
+        counter = 0
+        print("Counter =", counter)
+        for i in range(len(output)):
+            if (i == counter):
+                GPIO.output(output_list, output[7-i])
+        time.sleep(0.1)
+    
+    return
+
+def my_callback2(switch_down):
+    global counter
+    if (counter != 0):
+        counter -= 1
+        print("Counter =", counter)
+        for i in range(len(output)):
+            if (i == counter):
+                GPIO.output(output_list, output[7-i])
+        time.sleep(0.1)
+
+    elif (counter == 0):
+        
+        counter = 7
+        print("Counter =", counter)
+        for i in range(len(output)):
+            if (i == counter):
+                GPIO.output(output_list, output[7-i])
+        time.sleep(0.1)
+    
+    #for i in output:
+        #if (i== counter):
+            #GPIO.output(output_list, output(i))
+    
+    return
+#LED function
+
 
 # Logic that you write
 def main():
-    GPIO.add_event_detect(switch, GPIO.FALLING, callback=my_callback, bouncetime=200)
+    print(output)
+    GPIO.add_event_detect(switch_up, GPIO.RISING, callback=my_callback, bouncetime=200)
+    GPIO.add_event_detect(switch_down, GPIO.RISING, callback=my_callback2, bouncetime=200)
+        
     while True:
         time.sleep(1)
 
